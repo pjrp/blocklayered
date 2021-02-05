@@ -59,6 +59,10 @@ class BlockLayered extends Module
         if ((int) Tools::getValue('p')) {
             $this->page = (int) Tools::getValue('p');
         }
+	    
+	if (!$this->isRegisteredInHook('actionProductListOverride')) {
+    	    $this->registerHook('actionProductListOverride');
+	}
     }
 
     public static function pricesIndexProcess($cursor = 0, $ajax = false)
@@ -3784,5 +3788,16 @@ class BlockLayered extends Module
         /* We are sending an array in jSon to the .js controller, it will update both the filters and the products zones */
 
         return json_encode($vars);
+    }
+
+    public function hookActionProductListOverride($params)
+    {
+        if(Tools::getValue('selected_filters')){
+            $selected_filters = $this->getSelectedFilters();
+            $this->getProducts($selected_filters, $products, $nb_products, $p, $n, $pages_nb, $start, $stop, $range);
+            $params['nbProducts'] = $nb_products;
+            $params['catProducts'] = $products;
+            $params['hookExecuted'] = true;
+        }
     }
 }
